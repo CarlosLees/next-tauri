@@ -4,11 +4,11 @@
 mod command;
 
 use tauri::generate_handler;
-use command::local_ip;
+use command::{local_ip, app_list};
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(generate_handler![local_ip])
+        .invoke_handler(generate_handler![local_ip,app_list])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
