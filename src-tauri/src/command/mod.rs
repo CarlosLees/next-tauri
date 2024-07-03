@@ -2,10 +2,23 @@ use std::{fs, vec};
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+
 use anyhow::Result;
+use base64::{alphabet, engine, Engine};
+use base64::engine::general_purpose;
 use plist::Value;
 use serde::{Deserialize, Serialize};
-use image::io::Reader as ImageReader;
+use tauri::Manager;
+
+#[tauri::command]
+pub async fn close_splashscreen(window: tauri::Window) {
+    // 关闭初始屏幕
+    if let Some(splashscreen) = window.get_window("splashscreen") {
+        splashscreen.close().unwrap();
+    }
+    // 显示主窗口
+    window.get_window("main").unwrap().show().unwrap();
+}
 
 #[tauri::command]
 pub fn local_ip() -> Result<String,()> {
@@ -21,7 +34,7 @@ pub fn local_ip() -> Result<String,()> {
 }
 
 #[tauri::command]
-pub fn app_list() -> Result<Vec<AppModel>,()> {
+pub async  fn app_list() -> Result<Vec<AppModel>,()> {
     #[cfg(target_os = "windows")]
     Ok(());
 
@@ -32,44 +45,61 @@ pub fn app_list() -> Result<Vec<AppModel>,()> {
     list_applications("/System/Applications", &mut apps);
     list_applications("/System/Library/CoreServices", &mut apps);
 
+    // let tasks = apps.into_iter().map(|item| {
+    //     let icon = item.icon.clone();
+    //     tokio::spawn(async move {
+    //         return if let Ok(mut file) = File::open(icon) {
+    //             let mut buffer = Vec::new();
+    //
+    //             // 读取文件内容
+    //             file.read_to_end(&mut buffer).unwrap();
+    //             // 将字节数组转换为 Base64
+    //             const CUSTOM_ENGINE: engine::GeneralPurpose =
+    //                 engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
+    //
+    //             let b64_url = CUSTOM_ENGINE.encode(buffer);
+    //             let model = item.update_icon_base(b64_url);
+    //             Some(model)
+    //         } else {
+    //             None
+    //         }
+    //     })
+    // });
+    //
+    // let response = futures::future::join_all(tasks).await;
+    // let result: Vec<AppModel> = response
+    //     .into_iter()
+    //     .filter_map(|result| match result {
+    //         Ok(Some(model)) => Some(model),
+    //         _ => None,
+    //     })
+    //     .collect();
     println!("{:?}",apps);
-
-    apps.iter().map(|item| {
-        let icon = item.icon.clone();
-        tokio::spawn(async move {
-            let mut file = File::open(icon).unwrap();
-            let mut buffer = Vec::new();
-
-            // 读取文件内容
-            file.read_to_end(&mut buffer)?;
-
-            // 将图片解码为动态图片
-            let img = ImageReader::new(std::io::Cursor::new(buffer)).with_guessed_format()?.decode()?;
-
-            // 将图片编码为 PNG 格式的字节数组
-            let mut bytes = Vec::new();
-            img.write_to(&mut std::io::Cursor::new(&mut bytes), image::ImageOutputFormat::Png)?;
-
-            // 将字节数组转换为 Base64
-            let base64_string = encode(&bytes);
-
-            Ok(base64_string)
-        })
-    });
     Ok(apps)
 }
 
 #[derive(Serialize,Deserialize,Debug)]
+#[serde(rename_all="camelCase")]
 pub struct AppModel {
     name: String,
     icon: PathBuf,
+    icon_base: String
 }
 
 impl AppModel {
     fn new(name: String, icon: PathBuf) -> Self {
         Self {
             name,
-            icon
+            icon,
+            icon_base: String::new()
+        }
+    }
+
+    fn update_icon_base(self,base_url: String) -> Self{
+        Self {
+            icon_base: base_url,
+            name: self.name,
+            icon: self.icon
         }
     }
 }
