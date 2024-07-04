@@ -6,14 +6,14 @@ const imageLoader = ({ src, width }: { src: string; width: number }) => {
     return `${src}?w=${width}`;
 };
 
-const PodcastCard = ({ title, imageURL }: { title: string; imageURL: string }) => {
+const PodcastCard = ({ title, url }: { title: string; url: string }) => {
     return (
         <div className="cursor-pointer">
             <figure className="flex flex-col gap-2">
                 <Image
                     loader={imageLoader}
                     className="aspect-square h-fit w-full rounded-2xl 2xl:size-[200px]"
-                    src={imageURL}
+                    src={url}
                     alt={title}
                     width={174}
                     height={174}
