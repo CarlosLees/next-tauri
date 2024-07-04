@@ -18,13 +18,13 @@ export default function Home() {
 
     useEffect(() => {
         invoke('app_list').then((res) => {
-            const dataList = res as AppModel[];
-            dataList &&
-                dataList.forEach((data) => {
-                    data.url = window.URL.createObjectURL(new Blob(data.icon_base));
-                    console.log('data.url:', data.url);
-                });
-            setAppList(res as AppModel[]);
+            // const dataList = res as AppModel[];
+            // dataList &&
+            //     dataList.forEach((data) => {
+            //         data.url = window.URL.createObjectURL(new Blob(data.icon_base));
+            //         console.log('data.url:', data.url);
+            //     });
+            // setAppList(res as AppModel[]);
         });
     }, []);
 

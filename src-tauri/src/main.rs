@@ -4,7 +4,10 @@
 mod command;
 
 use tauri::generate_handler;
-use command::{local_ip, app_list,close_splashscreen};
+use crate::command::application::app_list;
+use crate::command::rss::*;
+use crate::command::close_splashscreen;
+use crate::command::local_ip::local_ip;
 
 fn main() {
     tauri::Builder::default()

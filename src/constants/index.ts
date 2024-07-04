@@ -9,6 +9,11 @@ export const sidebarLinks = [
         route: '/myself',
         label: 'Myself',
     },
+    {
+        imageUrl: '/icons/discover.svg',
+        route: '/rss',
+        label: 'Rss',
+    },
     // {
     //     imageUrl: '/icons/microphone.svg',
     //     route: '/create-podcast',
