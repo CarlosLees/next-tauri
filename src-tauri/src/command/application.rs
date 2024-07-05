@@ -2,21 +2,29 @@ use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
+#[cfg(target_os = "macos")]
 use plist::Value;
 use serde::{Deserialize, Serialize};
+#[cfg(target_os = "macos")]
 use tauri_icns::{IconFamily, IconType};
 
 #[tauri::command]
 pub async  fn app_list() -> anyhow::Result<Vec<AppModel>, ()> {
+
     #[cfg(target_os = "windows")]
-    Ok(());
+    let applications = vec![];
 
     #[cfg(target_os = "macos")]
-        let mut apps:Vec<AppModel> = vec![];
+    let applications = handle_macos_application().await;
+    Ok(applications)
+}
 
-    list_applications("/Applications",&mut apps);
-    list_applications("/System/Applications", &mut apps);
-    list_applications("/System/Library/CoreServices", &mut apps);
+#[cfg(target_os = "macos")]
+async fn handle_macos_application() -> Vec<AppModel> {
+    let mut apps:Vec<AppModel> = vec![];
+    crate::command::application::list_applications("/Applications", &mut apps);
+    crate::command::application::list_applications("/System/Applications", &mut apps);
+    crate::command::application::list_applications("/System/Library/CoreServices", &mut apps);
 
     let tasks = apps.into_iter().map(|item| {
         let icon = item.icon.clone();
@@ -52,8 +60,9 @@ pub async  fn app_list() -> anyhow::Result<Vec<AppModel>, ()> {
             _ => None,
         })
         .collect();
-    Ok(result)
+    result
 }
+
 
 #[derive(Serialize,Deserialize,Debug)]
 #[serde(rename_all="camelCase")]
@@ -81,6 +90,7 @@ impl AppModel {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn list_applications(dir: &str, vecs: &mut Vec<AppModel>) {
     let path = Path::new(dir);
     if let Ok(entries) = fs::read_dir(path) {
@@ -97,6 +107,7 @@ fn list_applications(dir: &str, vecs: &mut Vec<AppModel>) {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn get_app_info(app_path: &Path) -> Option<(String, PathBuf)> {
     let info_plist_path = app_path.join("Contents/Info.plist");
     if let Ok(plist) = Value::from_file(&info_plist_path) {
