@@ -6,7 +6,7 @@ mod command;
 use tauri::generate_handler;
 use crate::command::application::app_list;
 use crate::command::rss::rss_list;
-use crate::command::close_splashscreen;
+use crate::command::splash_screen::close_splashscreen;
 use crate::command::local_ip::local_ip;
 
 fn main() {

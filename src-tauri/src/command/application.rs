@@ -22,9 +22,9 @@ pub async  fn app_list() -> anyhow::Result<Vec<AppModel>, ()> {
 #[cfg(target_os = "macos")]
 async fn handle_macos_application() -> Vec<AppModel> {
     let mut apps:Vec<AppModel> = vec![];
-    crate::command::application::list_applications("/Applications", &mut apps);
-    crate::command::application::list_applications("/System/Applications", &mut apps);
-    crate::command::application::list_applications("/System/Library/CoreServices", &mut apps);
+    // list_applications("/Applications", &mut apps);
+    // list_applications("/System/Applications", &mut apps);
+    // list_applications("/System/Library/CoreServices", &mut apps);
 
     let tasks = apps.into_iter().map(|item| {
         let icon = item.icon.clone();

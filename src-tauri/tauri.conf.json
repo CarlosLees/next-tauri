@@ -56,11 +56,18 @@
     "windows": [
       {
         "fullscreen": false,
+        "width": 1200,
         "height": 760,
         "resizable": true,
-        "title": "next-tauri",
-        "width": 1200
-      }
+        "title": "next-tauri"
+      },
+      {
+        "width": 1200,
+        "height": 760,
+        "decorations": false,
+        "url": "/splashscreen",
+        "label": "splashscreen"
+       }
     ]
   }
 }
