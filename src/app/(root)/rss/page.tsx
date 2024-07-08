@@ -2,6 +2,7 @@
 
 import { invoke } from '@tauri-apps/api/tauri';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface RssChannel {
     title: string;
@@ -22,12 +23,25 @@ interface RssChannelItem {
 }
 
 const Rss = () => {
+    const router = useRouter();
+
     const [rss, setRss] = useState<RssChannel>();
 
     const getRss = async () => {
         const rssList = (await invoke('rss_list')) as RssChannel;
         console.log(rssList);
         setRss(rssList);
+    };
+
+    const readRss = (title: string) => {
+        console.log('title:', title);
+        const channelItems = rss?.items;
+        if (channelItems) {
+            const find = channelItems.find((item) => item.title === title);
+            if (find) {
+                router.push(`/rss/rssRead?link=${find.link}`);
+            }
+        }
     };
 
     return (
@@ -38,6 +52,7 @@ const Rss = () => {
                         return (
                             <div className="text-white-1" key={channel.title}>
                                 {channel.link}
+                                <button onClick={() => readRss(channel.title)}>查看</button>
                             </div>
                         );
                     }))}
